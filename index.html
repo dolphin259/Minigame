@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
     <title>Cyber Minigame: Thử Thách Dữ Liệu</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>   
     <style>
@@ -31,7 +32,7 @@
     margin: 0;
     padding: 0;
     width: 100%;
-    height: 100%;
+    min-height: 100vh;  
     color: white;
     background-color: black !important; /* Sử dụng màu xanh đen đồng nhất với background của bạn */
     overflow-x: hidden; /* Chặn tràn ngang */
@@ -43,18 +44,17 @@ body {
     align-items: flex-start; /* Đổi từ center sang flex-start để padding-top có tác dụng đẩy xuống */
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-
         .main-container {
             /* BACKGROUND IMAGE */
             background-image: url('./Background.jpg');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-
+            background-color: #0f172a;
             /* THIẾT LẬP KHUNG CĂN GIỮA */
             width: 100%;
             max-width: 800px; /* Đủ rộng để chứa hàng dài nhất */
-            height: 100vh;
+            min-height: 100vh;
             position: relative;
             
             /* Viền và bóng đổ */
@@ -272,7 +272,7 @@ body {
     <div class="main-container" id="capture-area" style="background-color: #0f172a;">
         <div id="loading-overlay">Đang tạo ảnh minh chứng...</div>
         <div class="header-container floating delay-1">
-            <h1 class="main-title">DATA WORD MIX update</h1>
+            <h1 class="main-title">DATA WORD MIX</h1>
             <p class="main-subtitle">Click vào từng hàng để xem câu hỏi và nhập từ khóa!</p>
         </div>
 
