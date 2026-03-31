@@ -338,7 +338,7 @@
         <div class="modal-content">
             <h2 class="modal-title">Chúc mừng bạn đã hoàn thành</h2>
             <div class="preview-image-wrapper"><img id="preview-image" src="" alt="Ảnh minh chứng"></div>
-            <p class="instruction-text">Nhấn "Tải Về Máy". Nếu bị lỗi, hãy nhấn giữ vào ảnh trên 2 giây để lưu.</p>
+            <p class="instruction-text">Nhấn "Tải Về Máy"</p>
             <div class="modal-buttons">
                 <button class="btn-download" id="btn-download-img">Tải Về Máy</button>
                 <button class="btn-close" id="btn-close-modal">Đóng</button>
@@ -532,7 +532,9 @@
                     filter: filterNodes, 
                     backgroundColor: '#0f172a',
                     width: captureArea.scrollWidth,
-                    height: captureArea.scrollHeight 
+                    height: captureArea.scrollHeight,
+                    useCORS: true,
+                    allowTaint: true
                 })
                 .then(function (dataUrl) {
                     previewImage.src = dataUrl;
@@ -548,7 +550,7 @@
                     loadingOverlay.style.display = 'none';
                     captureArea.scrollTop = currentScroll;
                 });
-            }, 800);
+            }, 1000);
         });
         /* ========================================= */
         /* LOGIC CHỤP ẢNH VÀ HIỂN THỊ MODAL          */
