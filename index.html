@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Minigame: Thử Thách Dữ Liệu</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>   
+    <style>
+        .win-action-container { display: none; flex-direction: column; align-items: center; margin-top: 30px; gap: 15px; animation: fadeIn 1s forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .win-message { color: #4ade80; font-size: 18px; font-weight: bold; margin: 0; text-shadow: 0 0 10px rgba(74, 222, 128, 0.5); }
+        .btn-yellow { background: linear-gradient(180deg, #fde047 0%, #eab308 100%); color: #1c1917; border: none; padding: 12px 25px; font-size: 16px; font-weight: bold; border-radius: 30px; cursor: pointer; box-shadow: 0 4px 15px rgba(234, 179, 8, 0.4); transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+        .btn-yellow:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(234, 179, 8, 0.6); }
+        .btn-yellow:active { transform: scale(0.95); }
+        
+        /* Modal Overlay */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.85); z-index: 9999; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-content { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 500px; padding: 20px; box-sizing: border-box; }
+        .modal-title { color: #fbbf24; font-size: 24px; margin-bottom: 20px; text-align: center; text-shadow: 0 0 10px rgba(251, 191, 36, 0.5); }
+        .preview-image-wrapper { width: 100%; max-height: 60vh; border: 2px solid #fbbf24; border-radius: 10px; overflow: hidden; box-shadow: 0 0 20px rgba(251, 191, 36, 0.3); margin-bottom: 15px; display: flex; justify-content: center; }
+        .preview-image-wrapper img { width: 100%; height: auto; object-fit: contain; }
+        .instruction-text { color: #d1d5db; font-size: 14px; text-align: center; margin-bottom: 20px; }
+        .modal-buttons { display: flex; gap: 15px; }
+        .btn-download { background: linear-gradient(180deg, #4ade80 0%, #16a34a 100%); color: white; border: none; padding: 12px 20px; font-size: 16px; font-weight: bold; border-radius: 30px; cursor: pointer; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4); transition: all 0.2s; }
+        .btn-download:hover { transform: scale(1.05); }
+        .btn-close { background: #374151; color: white; border: none; padding: 12px 25px; font-size: 16px; font-weight: bold; border-radius: 30px; cursor: pointer; transition: all 0.2s; }
+        .btn-close:hover { background: #4b5563; }
+        #loading-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 50; display: none; justify-content: center; align-items: center; color: #fbbf24; font-weight: bold; font-size: 20px; }
+        /* --- BACKGROUND & TỔNG QUAN --- */
+        html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    color: white;
+    background-color: black !important; /* Sử dụng màu xanh đen đồng nhất với background của bạn */
+    overflow-x: hidden; /* Chặn tràn ngang */
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Đổi từ center sang flex-start để padding-top có tác dụng đẩy xuống */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+        .main-container {
+            /* BACKGROUND IMAGE */
+            background-image: url('./Background.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+
+            /* THIẾT LẬP KHUNG CĂN GIỮA */
+            width: 100%;
+            max-width: 800px; /* Đủ rộng để chứa hàng dài nhất */
+            height: 100vh;
+            position: relative;
+            
+            /* Viền và bóng đổ */
+            box-shadow: 0 0 30px rgba(0,0,0,0.9);
+            border-left: 1px solid rgba(255, 215, 0, 0.3);
+            border-right: 1px solid rgba(255, 215, 0, 0.3);
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            z-index: 10;
+            padding: 100px 0 50px 0;            
+            box-sizing: border-box;
+            overflow-y: auto; 
+            overflow-x: hidden;
+        }
+
+        /* Ẩn thanh cuộn */
+        .main-container::-webkit-scrollbar { display: none; }
+        .main-container { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .header-container { text-align: center; margin-bottom: 20px; }
+        .main-title { font-size: 32px; text-shadow: 0 0 10px #38bdf8; margin: 0; }
+        .main-subtitle { font-size: 16px; color: #bae6fd; margin-top: 5px; }
+
+        /* --- HIỆU ỨNG LƠ LỬNG --- */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        .floating { animation: float 3s ease-in-out infinite; }
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.5s; }
+        .delay-3 { animation-delay: 0.8s; }
+
+        /* --- BẢNG Ô CHỮ & NGÔI SAO --- */
+        .crossword-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            position: relative;
+            
+            /* ĐÓNG GÓI VỪA VẶN NỘI DUNG VÀ CĂN GIỮA TOÀN KHỐI */
+            width: fit-content;
+            margin: 0 auto;
+        }
+
+        .row {
+            display: flex;
+            /* QUAN TRỌNG: Căn trái các ngôi sao để thẳng cột nhờ các thẻ spacer */
+            justify-content: flex-start; 
+            gap: 8px;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 15px;
+            transition: background-color 0.3s, transform 0.2s;
+            position: relative;
+            width: fit-content;
+        }
+
+        .row:hover { background-color: rgba(255, 255, 255, 0.05); }
+        .active-row { background-color: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); }
+
+        /* GIỮ NGUYÊN SIZE 55px NHƯ YÊU CẦU */
+        .star-wrapper {
+            width: 55px; height: 55px;
+            display: flex; justify-content: center; align-items: center;
+            filter: drop-shadow(0 0 8px rgba(148, 163, 184, 0.6));
+            position: relative;
+        }
+
+        .star-shape {
+            position: absolute; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #cbd5e1 0%, #64748b 100%);
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            z-index: 1;
+            transition: all 0.3s;
+        }
+
+        .vertical-star .star-shape {
+            background: linear-gradient(135deg, #fde047 0%, #ca8a04 100%);
+        }
+        .vertical-star { filter: drop-shadow(0 0 15px rgba(234, 179, 8, 0.8)); }
+
+        .spacer { width: 55px; height: 55px; visibility: hidden; }
+
+        .star-text {
+            z-index: 2; font-size: 22px; font-weight: bold; color: white;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+            margin-top: 5px; 
+        }
+
+        .hint-text {
+            position: absolute; 
+            top: -28px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px; 
+            font-weight: bold; 
+            color: #7dd3fc;
+            text-shadow: 0 0 5px #0284c7;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        /* --- VÙNG NHẬP ẢO & CÂU HỎI --- */
+        .input-area-container {
+            display: none; width: 100%; max-width: 600px; margin-top: 10px;
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .input-area-container.active { display: flex; flex-direction: column; align-items: center; opacity: 1; }
+
+        .question-text {
+            color: #bae6fd;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 12px;
+            text-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+            padding: 0 15px;
+        }
+
+        .virtual-input-wrapper {
+            width: 100%; padding: 5px;
+            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
+            border: 2px dashed #38bdf8; border-radius: 20px;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+        }
+
+        .virtual-input {
+            width: 100%; height: 50px; border: none; background: transparent;
+            font-size: 22px; font-weight: bold; text-align: center; color: #e0f2fe;
+            outline: none; text-transform: uppercase; letter-spacing: 4px;
+        }
+        .virtual-input::placeholder { color: #7dd3fc; font-size: 14px; letter-spacing: 1px; font-weight: normal; }
+
+        /* --- HIỆU ỨNG MATRIX TEAR --- */
+        .particle {
+            position: absolute; font-weight: bold; font-family: monospace; pointer-events: none; z-index: 100;
+        }
+        
+        @keyframes tearUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; color: #fff; }
+            100% { transform: translateY(-150px) scale(1.5); opacity: 0; color: #38bdf8; filter: blur(2px); }
+        }
+        
+        @keyframes binaryRain {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(80px); opacity: 0; }
+        }
+        
+        .tear-up-anim { animation: tearUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+        .binary-rain-anim { animation: binaryRain 0.6s linear forwards; }
+
+        .correct-star .star-shape { background: linear-gradient(135deg, #4ade80 0%, #16a34a 100%) !important; filter: drop-shadow(0 0 10px #22c55e); }
+        .wrong-star .star-shape { background: linear-gradient(135deg, #f87171 0%, #dc2626 100%) !important; filter: drop-shadow(0 0 10px #ef4444); }
+        /* ========================================= */
+/* CSS DÀNH RIÊNG CHO MÀN HÌNH ĐIỆN THOẠI    */
+/* ========================================= */
+@media screen and (max-width: 700px) {
+    /* Thu nhỏ kích thước ngôi sao và ô trống để vừa 10 ô trên 1 hàng */
+    .star-wrapper, .spacer {
+        width: 30px !important;
+        height: 30px !important;
+    }
+    
+    /* Giảm khoảng cách giữa các ngôi sao */
+    .row {
+        gap: 3px;
+        padding: 5px;
+    }
+    
+    /* Thu nhỏ chữ bên trong ngôi sao */
+    .star-text {
+        font-size: 14px;
+        margin-top: 2px;
+    }
+    
+    /* Thu nhỏ các chữ cái gợi ý (C, D, S, G) và kéo xuống gần sao hơn */
+    .hint-text {
+        font-size: 12px;
+        top: -18px;
+    }
+    
+    /* Điều chỉnh lại tiêu đề cho cân đối */
+    .main-title {
+        font-size: 24px;
+    }
+    .main-subtitle {
+        font-size: 13px;
+        padding: 0 10px;
+    }
+    
+    /* Điều chỉnh vùng hiển thị câu hỏi và ô nhập liệu */
+    .question-text {
+        font-size: 15px;
+        margin-bottom: 8px;
+    }
+    .virtual-input {
+        font-size: 16px;
+        height: 40px;
+        letter-spacing: 2px;
+    }
+    
+    /* Thu nhỏ chữ khi có hiệu ứng rơi xuống (matrix) */
+    .particle {
+        font-size: 16px !important;
+    }
+}
+    </style>
+</head>
+<body>
+
+    <div class="main-container" id="capture-area" style="background-color: #0f172a;">
+        <div id="loading-overlay">Đang tạo ảnh minh chứng...</div>
+        <div class="header-container floating delay-1">
+            <h1 class="main-title">DATA WORD MIX update</h1>
+            <p class="main-subtitle">Click vào từng hàng để xem câu hỏi và nhập từ khóa!</p>
+        </div>
+
+        <div class="crossword-container" id="game-board">
+            <div class="row floating delay-2" data-answer="CODING" data-question="1. Quá trình viết các chỉ dẫn bằng ngôn ngữ lập trình để máy tính thực thi được gọi là gì?">
+                <div class="star-wrapper"><div class="hint-text floating delay-3">C</div><div class="star-shape"></div><div class="star-text"></div></div>
+                <div class="star-wrapper"><div class="star-shape"></div><div class="star-text"></div></div>
+                <div class="star-wrapper vertical-star" data-vertical="1"><div class="star-shape"></div><div class="star-text"></div></div>
+                <div class="star-wrapper"><div class="star-shape"></div><div class="star-text"></div></div>
+                <div class="star-wrapper"><div class="star-shape"></div><div class="star-text"></div></div>
+                <div class="star-wrapper"><div class="hint-text floating delay-1">G</div><div class="star-shape"></div><div class="star-text"></div></div>
+            </div>
+
+            <div class="row floating delay-1" data-answer="DATABASE" data-question="2. Tập hợp dữ liệu có tổ chức, thường được lưu trữ và truy cập điện tử từ một hệ thống máy tính?">
+                <div class="spacer"></div>
+                <div class="star-wrapper"><div class="hint-text floating delay-2">D</div><div class="star-shape"></div><div class="star-text"></div></div>
+                <div class="star-wrapper vertical-star" data-vertical="2"><div class="star-shape"></div><div class="star-text"></div></div>
+                <div class="star-wrapper"><div class="star-shape"></div><div class="star-text"></div></div>
+                <div class="star-wrapper"><div class="star-shape"></div><div class="star-text"></div></div>
+                <div class="star-wrapper"><div class="star-shape"></div><div class="star-text"></div></div>
+                <div class="star-wrapper"><div class="star-shape"></div><div class="star-text"></div></div>
+                <div class="star-wrapper"><div class="hint-text floating delay-3">S</div><div class="star-shape"></div><div class="star-text"></div></div>
+                <div class="star-wrapper"><div class="star-shape"></div><div class="star-text"></div></div>
+            </div>
+
+            <div class="row floating delay-3" data-answer="STATISTICS" data-question="3. Ngành học nghiên cứu về việc thu thập, phân tích, giải thích và trình bày dữ liệu?">
+                <div class="spacer"></div>
+                <div class="star-wrapper"><div class="hint-text floating delay-1">S</div><div class="star-shape"></div><div class="star-text"></div></div>
+                <div class="star-wrapper vertical-star" data-vertical="3"><div class="star-shape"></div><div class="star-text"></div></div>
+                <div class="star-wrapper"><div class="star-shape"></div><div class="star-text"></div></div>
+                <div class="star-wrapper"><div class="star-shape"></div><div class="star-text"></div></div>
+                <div class="star-wrapper"><div class="star-shape"></div><div class="star-text"></div></div>
+                <div class="star-wrapper"><div class="star-shape"></div><div class="star-text"></div></div>
+                <div class="star-wrapper"><div class="star-shape"></div><div class="star-text"></div></div>
+                <div class="star-wrapper"><div class="star-shape"></div><div class="star-text"></div></div>
+                <div class="star-wrapper"><div class="hint-text floating delay-2">C</div><div class="star-shape"></div><div class="star-text"></div></div>
+                <div class="star-wrapper"><div class="star-shape"></div><div class="star-text"></div></div>
+            </div>
+
+            <div class="row floating delay-2" data-answer="AI" data-question="4. Lĩnh vực khoa học máy tính chuyên mô phỏng trí thông minh của con người (Viết tắt Tiếng Anh)?">
+                <div class="spacer"></div><div class="spacer"></div>
+                <div class="star-wrapper vertical-star" data-vertical="4"><div class="star-shape"></div><div class="star-text"></div></div>
+                <div class="star-wrapper"><div class="star-shape"></div><div class="star-text"></div></div>
+            </div>
+        </div>
+
+        <div class="input-area-container floating" id="input-container">
+            <div class="question-text" id="question-display"></div> <div class="virtual-input-wrapper">
+                <input type="text" id="virtual-input" class="virtual-input" autocomplete="off" spellcheck="false" placeholder="GÕ ĐÁP ÁN & ĐƯỢC TỰ ĐỘNG ĐƯA LÊN">
+            </div>
+        </div>
+        <div class="win-action-container" id="win-container">
+            <p class="win-message">Chuẩn cơm mẹ nấu rồi:)))</p>
+            <button class="btn-yellow" id="btn-take-screenshot">
+                Gửi bạn ảnh minh chứng
+            </button>
+        </div>
+    </div>
+    <!-- MODAL HIỂN THỊ ẢNH CHỤP (Nằm ngoài màn hình game) -->
+    <div class="modal-overlay" id="result-modal">
+        <div class="modal-content">
+            <h2 class="modal-title">Chúc mừng bạn đã hoàn thành</h2>
+            <div class="preview-image-wrapper"><img id="preview-image" src="" alt="Ảnh minh chứng"></div>
+            <p class="instruction-text">Nhấn "Tải Về Máy". Nếu bị lỗi, hãy nhấn giữ vào ảnh trên 2 giây để lưu.</p>
+            <div class="modal-buttons">
+                <button class="btn-download" id="btn-download-img">Tải Về Máy</button>
+                <button class="btn-close" id="btn-close-modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const rows = document.querySelectorAll('.row');
+        const inputContainer = document.getElementById('input-container');
+        const virtualInput = document.getElementById('virtual-input');
+        const questionDisplay = document.getElementById('question-display');
+        const verticalStars = document.querySelectorAll('.vertical-star');
+        const winContainer = document.getElementById('win-container');
+        const btnTakeScreenshot = document.getElementById('btn-take-screenshot');
+        const resultModal = document.getElementById('result-modal');
+        const previewImage = document.getElementById('preview-image');
+        const btnDownload = document.getElementById('btn-download-img');
+        const btnCloseModal = document.getElementById('btn-close-modal');
+        const captureArea = document.getElementById('capture-area');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        
+        let activeRow = null;
+        let isAnimating = false;
+
+        rows.forEach(row => {
+            row.addEventListener('click', () => {
+                if (isAnimating) return;
+                
+                const firstStar = row.querySelector('.star-wrapper');
+                if (firstStar && firstStar.classList.contains('correct-star')) return;
+
+                if (activeRow) activeRow.classList.remove('active-row');
+                
+                activeRow = row;
+                activeRow.classList.add('active-row');
+                
+                // Hiển thị câu hỏi tương ứng với hàng được chọn
+                questionDisplay.innerText = row.getAttribute('data-question');
+                inputContainer.classList.add('active');
+                
+                const answerLength = row.dataset.answer.length;
+                virtualInput.maxLength = answerLength;
+                virtualInput.value = "";
+                virtualInput.disabled = false;
+                
+                const starTexts = row.querySelectorAll('.star-text');
+                starTexts.forEach(st => st.innerText = "");
+
+                resetVerticalHighlight();
+                
+                setTimeout(() => {
+                    virtualInput.focus();
+                    // Cuộn màn hình nhẹ xuống vùng nhập nếu nó bị khuất
+                    inputContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 50);
+            });
+        });
+
+        virtualInput.addEventListener('input', () => {
+            if (!activeRow || isAnimating) return;
+
+            const typedText = virtualInput.value.toUpperCase();
+            virtualInput.value = typedText; 
+            const correctAnswer = activeRow.dataset.answer;
+            const starTexts = activeRow.querySelectorAll('.star-text');
+
+            starTexts.forEach((st, index) => {
+                st.innerText = index < typedText.length ? typedText[index] : "";
+            });
+
+            if (typedText.length === correctAnswer.length) {
+                isAnimating = true;
+                virtualInput.disabled = true;
+                
+                const isCorrect = (typedText === correctAnswer);
+                
+                createTearEffect(virtualInput, typedText, () => {
+                    if (isCorrect) {
+                        const wrappers = activeRow.querySelectorAll('.star-wrapper');
+                        wrappers.forEach(w => w.classList.add('correct-star'));
+                        
+                        activeRow.classList.remove('active-row');
+                        inputContainer.classList.remove('active');
+                        activeRow = null;
+                        
+                        checkWinCondition();
+                    } else {
+                        const wrappers = activeRow.querySelectorAll('.star-wrapper');
+                        wrappers.forEach(w => w.classList.add('wrong-star'));
+                        
+                        setTimeout(() => {
+                            wrappers.forEach(w => {
+                                w.classList.remove('wrong-star');
+                                w.querySelector('.star-text').innerText = "";
+                            });
+                            virtualInput.value = "";
+                            virtualInput.disabled = false;
+                            virtualInput.focus();
+                        }, 800);
+                    }
+                    isAnimating = false;
+                });
+            }
+        });
+
+        function createTearEffect(inputElement, text, callback) {
+            const rect = inputElement.getBoundingClientRect();
+            const container = document.body;
+            
+            inputElement.value = "";
+            const charWidth = rect.width / text.length;
+            
+            for (let i = 0; i < text.length; i++) {
+                const letter = document.createElement('div');
+                letter.className = 'particle tear-up-anim';
+                letter.innerText = text[i];
+                // Tính toán vị trí khi có cuộn trang
+                letter.style.left = (rect.left + window.scrollX + (i * charWidth) + (charWidth/2) - 10) + 'px';
+                letter.style.top = (rect.top + window.scrollY) + 'px';
+                letter.style.fontSize = '24px';
+                container.appendChild(letter);
+                
+                for(let j=0; j<3; j++) {
+                    const binary = document.createElement('div');
+                    binary.className = 'particle binary-rain-anim';
+                    binary.innerText = Math.random() > 0.5 ? '1' : '0';
+                    binary.style.left = (rect.left + window.scrollX + (i * charWidth) + (charWidth/2) + (Math.random()*20-10)) + 'px';
+                    binary.style.top = (rect.top + window.scrollY) + 'px';
+                    binary.style.color = Math.random() > 0.5 ? '#38bdf8' : '#7dd3fc';
+                    binary.style.animationDelay = (Math.random() * 0.2) + 's';
+                    container.appendChild(binary);
+                    
+                    setTimeout(() => binary.remove(), 800);
+                }
+                
+                setTimeout(() => letter.remove(), 800);
+            }
+            
+            setTimeout(callback, 800);
+        }
+
+        // 1. THAY THẾ HÀM NÀY
+        function checkWinCondition() {
+            const allRowsCorrect = Array.from(rows).every(row => {
+                const firstStar = row.querySelector('.star-wrapper');
+                return firstStar && firstStar.classList.contains('correct-star');
+            });
+            
+            if (allRowsCorrect) {
+                // Đổi màu cột dọc
+                verticalStars.forEach((star, index) => {
+                    setTimeout(() => {
+                        // Gọi class SVG vàng thay vì set màu nền inline
+                        star.classList.add('win-vertical-star');
+                        star.style.filter = 'drop-shadow(0 0 25px #fcd34d) drop-shadow(0 0 45px #fbbf24)';
+                        star.style.transform = 'scale(1.15)';
+                    }, index * 200); 
+                });
+
+                // HIỂN THỊ NÚT NHẬN THƯỞNG
+                setTimeout(() => {
+                    if(winContainer) {
+                        winContainer.style.display = 'flex';
+                        winContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                    }
+                }, 1000);
+            }
+        }
+        /* ========================================= */
+        /* LOGIC CHỤP ẢNH VÀ HIỂN THỊ MODAL          */
+        /* ========================================= */
+        btnTakeScreenshot.addEventListener('click', () => {
+            loadingOverlay.style.display = 'flex';
+
+            // THỦ THUẬT: Cuộn trang lên sát mép trên cùng trước khi chụp để không bị cắt đáy ảnh
+            const currentScroll = captureArea.scrollTop;
+            captureArea.scrollTop = 0;
+
+            const filterNodes = (node) => {
+                if (node.id === 'win-container' || node.id === 'input-container' || node.id === 'loading-overlay') {
+                    return false; 
+                }
+                return true;
+            };
+
+            // Đợi 100ms để trình duyệt kịp cuộn lên rồi mới chụp
+            setTimeout(() => {
+                htmlToImage.toPng(captureArea, { 
+                    pixelRatio: 2, 
+                    filter: filterNodes, 
+                    backgroundColor: '#0f172a',
+                    // Ép buộc chiều cao bằng đúng toàn bộ nội dung để không bị cắt
+                    width: captureArea.scrollWidth,
+                    height: captureArea.scrollHeight 
+                })
+                .then(function (dataUrl) {
+                    previewImage.src = dataUrl;
+                    resultModal.style.display = 'flex';
+                    loadingOverlay.style.display = 'none';
+                    
+                    // Chụp xong thì tự động cuộn trả lại vị trí cũ cho mượt
+                    captureArea.scrollTop = currentScroll;
+                })
+                .catch(function (error) {
+                    console.error('Lỗi chụp ảnh:', error);
+                    alert("Đã xảy ra lỗi khi tạo ảnh. Vui lòng thử lại!");
+                    loadingOverlay.style.display = 'none';
+                    captureArea.scrollTop = currentScroll;
+                });
+            }, 100);
+        });
+
+        /* ========================================= */
+        /* LOGIC NÚT ĐÓNG & NÚT TẢI VỀ               */
+        /* ========================================= */
+        
+        // Tắt Modal
+        btnCloseModal.addEventListener('click', () => {
+            resultModal.style.display = 'none';
+        });
+
+        // Tải ảnh về máy
+        btnDownload.addEventListener('click', () => {
+            if (!previewImage.src || previewImage.src === "") return; // Nếu chưa có ảnh thì ko làm gì cả
+
+            // Tạo một thẻ link <a> ẩn để ra lệnh cho trình duyệt tải file
+            const link = document.createElement('a');
+            link.download = 'ChungNhan-ThuThachDuLieu.png'; // Tên file tải về
+            link.href = previewImage.src;
+            document.body.appendChild(link);
+            link.click(); // Giả lập hành động bấm để tải
+            document.body.removeChild(link);
+        });
+    </script>
+</body>
+</html>
