@@ -511,10 +511,12 @@
         /* ========================================= */
         /* LOGIC CHỤP ẢNH VÀ HIỂN THỊ MODAL          */
         /* ========================================= */
+        /* ========================================= */
+        /* LOGIC CHỤP ẢNH VÀ HIỂN THỊ MODAL          */
+        /* ========================================= */
         btnTakeScreenshot.addEventListener('click', () => {
             loadingOverlay.style.display = 'flex';
 
-            // Cuộn trang lên sát mép trên cùng trước khi chụp để không bị cắt đáy ảnh
             const currentScroll = captureArea.scrollTop;
             captureArea.scrollTop = 0;
 
@@ -525,23 +527,30 @@
                 return true;
             };
 
-            // Đợi 100ms để trình duyệt kịp cuộn lên rồi mới chụp
             setTimeout(() => {
-                htmlToImage.toPng(captureArea, { 
+                // Gom cấu hình chụp lại thành 1 biến cho gọn
+                const captureConfig = { 
                     pixelRatio: 2, 
                     filter: filterNodes, 
                     backgroundColor: '#0f172a',
                     width: captureArea.scrollWidth,
                     height: captureArea.scrollHeight,
-                    useCORS: true,
-                    allowTaint: true
+                    useCORS: true
+                };
+
+                // TRÌNH DUYỆT IOS HAY BỊ "MÙ" Ở LẦN CHỤP ĐẦU TIÊN
+                // BẮT BUỘC PHẢI CHỤP 2 LẦN LIÊN TIẾP ĐỂ ÉP NÓ LOAD ẢNH
+                htmlToImage.toPng(captureArea, captureConfig)
+                .then(function () {
+                    // Lần 1: Chụp mồi (Thường bị mất nền trên iPhone) -> Bỏ qua kết quả
+                    // Lập tức bắt nó chụp lại Lần 2 (Lúc này bộ nhớ đã nạp xong ảnh)
+                    return htmlToImage.toPng(captureArea, captureConfig);
                 })
                 .then(function (dataUrl) {
+                    // Lần 2: Lấy kết quả xịn để hiển thị
                     previewImage.src = dataUrl;
                     resultModal.style.display = 'flex';
                     loadingOverlay.style.display = 'none';
-                    
-                    // Chụp xong tự động cuộn trả lại vị trí cũ
                     captureArea.scrollTop = currentScroll;
                 })
                 .catch(function (error) {
@@ -550,7 +559,7 @@
                     loadingOverlay.style.display = 'none';
                     captureArea.scrollTop = currentScroll;
                 });
-            }, 1000);
+            }, 500); // Chỉ cần đợi 150ms là đủ, không cần đợi lâu nữa
         });
         /* ========================================= */
         /* LOGIC CHỤP ẢNH VÀ HIỂN THỊ MODAL          */
