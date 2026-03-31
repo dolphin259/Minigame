@@ -26,47 +26,46 @@
         .btn-close { background: #374151; color: white; border: none; padding: 12px 25px; font-size: 16px; font-weight: bold; border-radius: 30px; cursor: pointer; transition: all 0.2s; }
         .btn-close:hover { background: #4b5563; }
         #loading-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 50; display: none; justify-content: center; align-items: center; color: #fbbf24; font-weight: bold; font-size: 20px; }
+        :root, html, body {
+            background-color: black !important; /* Phủ đen toàn bộ lõi trình duyệt */
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 1. ÉP MÀU NỀN TỐI ĐA CHO TOÀN BỘ TRÌNH DUYỆT */
         html, body {
             margin: 0 !important;
             padding: 0 !important;
             width: 100%;
-            min-height: 100vh;
-            min-height: 100dvh;
-            background-color: black !important; /* Đổ mực đen xanh kín toàn bộ đáy */
+            background-color: black !important; /* Đen vũ trụ 100% không bao giờ trượt */
         }
 
         body {
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: white;
-            /* Đảm bảo nội dung dài đến đâu, body dài đến đó */
-            height: auto; 
+            /* Xóa bỏ flexbox ở body để tránh lỗi co rút trên mobile */
         }
 
-        /* Ở phần .main-container bên dưới của bạn, hãy đảm bảo có 2 dòng này: */
+        /* 2. CĂN GIỮA KHUNG GAME BẰNG MARGIN AUTO (CỰC KỲ ỔN ĐỊNH) */
         .main-container {
-            flex-grow: 1; /* Ép container luôn tự động giãn ra lấp đầy mọi khoảng trống thừa */
             background-image: url('./Background.jpg');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            background-attachment: fixed; /* Giữ cho ảnh nền đứng im khi cuộn, tránh bị hụt đuôi */
-            background-color: black;
+            background-color: #0f172a;
             
-            /* THIẾT LẬP KHUNG CĂN GIỮA */
             width: 100%;
             max-width: 800px;
-            min-height: 100vh;
-            min-height: 100dvh; /* Fix chiều cao cho mobile */
-            position: relative;
+            min-height: 100vh; /* Tối thiểu bằng 1 màn hình */
+            margin: 0 auto; /* Tự động căn giữa màn hình siêu mượt */
             
-            /* Viền và bóng đổ */
+            position: relative;
             box-shadow: 0 0 30px rgba(0,0,0,0.9);
             border-left: 1px solid rgba(255, 215, 0, 0.3);
             border-right: 1px solid rgba(255, 215, 0, 0.3);
-
+            
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -74,14 +73,12 @@
             z-index: 10;
             padding: 100px 0 50px 0;            
             box-sizing: border-box;
-            overflow-y: auto; 
             overflow-x: hidden;
         }
 
         /* Ẩn thanh cuộn */
         .main-container::-webkit-scrollbar { display: none; }
         .main-container { -ms-overflow-style: none; scrollbar-width: none; }
-
         .header-container { text-align: center; margin-bottom: 20px; }
         .main-title { font-size: 32px; text-shadow: 0 0 10px #38bdf8; margin: 0; }
         .main-subtitle { font-size: 16px; color: #bae6fd; margin-top: 5px; }
