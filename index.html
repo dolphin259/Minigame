@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0f172a">
     <title>Cyber Minigame: Thử Thách Dữ Liệu</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>   
     <style>
@@ -27,34 +26,40 @@
         .btn-close { background: #374151; color: white; border: none; padding: 12px 25px; font-size: 16px; font-weight: bold; border-radius: 30px; cursor: pointer; transition: all 0.2s; }
         .btn-close:hover { background: #4b5563; }
         #loading-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 50; display: none; justify-content: center; align-items: center; color: #fbbf24; font-weight: bold; font-size: 20px; }
-        /* --- BACKGROUND & TỔNG QUAN --- */
         html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    min-height: 100vh;  
-    color: white;
-    background-color: black !important; /* Sử dụng màu xanh đen đồng nhất với background của bạn */
-    overflow-x: hidden; /* Chặn tràn ngang */
-}
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100%;
+            min-height: 100vh;
+            min-height: 100dvh;
+            background-color: black !important; /* Đổ mực đen xanh kín toàn bộ đáy */
+        }
 
-body {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start; /* Đổi từ center sang flex-start để padding-top có tác dụng đẩy xuống */
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+            /* Đảm bảo nội dung dài đến đâu, body dài đến đó */
+            height: auto; 
+        }
+
+        /* Ở phần .main-container bên dưới của bạn, hãy đảm bảo có 2 dòng này: */
         .main-container {
-            /* BACKGROUND IMAGE */
+            flex-grow: 1; /* Ép container luôn tự động giãn ra lấp đầy mọi khoảng trống thừa */
             background-image: url('./Background.jpg');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            background-color: #0f172a;
+            background-attachment: fixed; /* Giữ cho ảnh nền đứng im khi cuộn, tránh bị hụt đuôi */
+            background-color: black;
+            
             /* THIẾT LẬP KHUNG CĂN GIỮA */
             width: 100%;
-            max-width: 800px; /* Đủ rộng để chứa hàng dài nhất */
+            max-width: 800px;
             min-height: 100vh;
+            min-height: 100dvh; /* Fix chiều cao cho mobile */
             position: relative;
             
             /* Viền và bóng đổ */
@@ -269,11 +274,11 @@ body {
 </head>
 <body>
 
-    <div class="main-container" id="capture-area" style="background-color: #0f172a;">
+    <div class="main-container" id="capture-area" style="background-color: black">
         <div id="loading-overlay">Đang tạo ảnh minh chứng...</div>
         <div class="header-container floating delay-1">
             <h1 class="main-title">DATA WORD MIX</h1>
-            <p class="main-subtitle">Click vào từng hàng để xem câu hỏi và nhập từ khóa!</p>
+            <p class="main-subtitle">Click vào từng hàng để xem câu hỏi và nhập từ khóa</p>
         </div>
 
         <div class="crossword-container" id="game-board">
@@ -298,7 +303,7 @@ body {
                 <div class="star-wrapper"><div class="star-shape"></div><div class="star-text"></div></div>
             </div>
 
-            <div class="row floating delay-3" data-answer="STATISTICS" data-question="3. Ngành học nghiên cứu về việc thu thập, phân tích, giải thích và trình bày dữ liệu?">
+            <div class="row floating delay-3" data-answer="STATISTICS" data-question="3. Môn học nghiên cứu về việc thu thập, phân tích, giải thích và trình bày dữ liệu?">
                 <div class="spacer"></div>
                 <div class="star-wrapper"><div class="hint-text floating delay-1">S</div><div class="star-shape"></div><div class="star-text"></div></div>
                 <div class="star-wrapper vertical-star" data-vertical="3"><div class="star-shape"></div><div class="star-text"></div></div>
@@ -512,7 +517,7 @@ body {
         btnTakeScreenshot.addEventListener('click', () => {
             loadingOverlay.style.display = 'flex';
 
-            // THỦ THUẬT: Cuộn trang lên sát mép trên cùng trước khi chụp để không bị cắt đáy ảnh
+            // Cuộn trang lên sát mép trên cùng trước khi chụp để không bị cắt đáy ảnh
             const currentScroll = captureArea.scrollTop;
             captureArea.scrollTop = 0;
 
@@ -529,7 +534,6 @@ body {
                     pixelRatio: 2, 
                     filter: filterNodes, 
                     backgroundColor: '#0f172a',
-                    // Ép buộc chiều cao bằng đúng toàn bộ nội dung để không bị cắt
                     width: captureArea.scrollWidth,
                     height: captureArea.scrollHeight 
                 })
@@ -538,7 +542,7 @@ body {
                     resultModal.style.display = 'flex';
                     loadingOverlay.style.display = 'none';
                     
-                    // Chụp xong thì tự động cuộn trả lại vị trí cũ cho mượt
+                    // Chụp xong tự động cuộn trả lại vị trí cũ
                     captureArea.scrollTop = currentScroll;
                 })
                 .catch(function (error) {
@@ -549,6 +553,57 @@ body {
                 });
             }, 100);
         });
+        /* ========================================= */
+        /* LOGIC CHỤP ẢNH VÀ HIỂN THỊ MODAL          */
+        /* ========================================= */
+        // Hàm phụ trợ: Chuyển đổi Data URI (Base64) sang định dạng Blob (File thực tế)
+        function dataURItoBlob(dataURI) {
+            let byteString = atob(dataURI.split(',')[1]);
+            let mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+            let ab = new ArrayBuffer(byteString.length);
+            let dw = new Uint8Array(ab);
+            for (let i = 0; i < byteString.length; i++) {
+                dw[i] = byteString.charCodeAt(i);
+            }
+            return new Blob([ab], {type: mimeString});
+        }
+
+        // Tải ảnh về máy (Hỗ trợ Web Share API cho Mobile)
+        btnDownload.addEventListener('click', async () => {
+            if (!previewImage.src || previewImage.src === "") return;
+
+            try {
+                // Chuyển ảnh ảo thành file thực tế
+                const blob = dataURItoBlob(previewImage.src);
+                const file = new File([blob], 'ChungNhan-ThuThachDuLieu.png', { type: 'image/png' });
+
+                // Kiểm tra xem điện thoại có hỗ trợ tính năng Share/Save native không
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        title: 'Chứng nhận Thử Thách Dữ Liệu'
+                    });
+                } else {
+                    // Fallback: Dành cho máy tính hoặc trình duyệt cũ không hỗ trợ Share
+                    const blobUrl = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.download = 'ChungNhan-ThuThachDuLieu.png';
+                    link.href = blobUrl;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    // Xoá URL sau khi tải xong để giải phóng bộ nhớ
+                    setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+                }
+            } catch (error) {
+                console.log('Chia sẻ bị hủy hoặc lỗi:', error);
+                // Nếu người dùng ấn hủy share thì không cần báo lỗi, nhưng nếu lỗi thật thì nhắc nhở
+                if (error.name !== 'AbortError') {
+                    alert("Trình duyệt chặn tải trực tiếp. Vui lòng nhấn giữ vào ảnh khoảng 2 giây và chọn 'Lưu hình ảnh' (Save Image).");
+                }
+            }
+        });
 
         /* ========================================= */
         /* LOGIC NÚT ĐÓNG & NÚT TẢI VỀ               */
@@ -557,19 +612,6 @@ body {
         // Tắt Modal
         btnCloseModal.addEventListener('click', () => {
             resultModal.style.display = 'none';
-        });
-
-        // Tải ảnh về máy
-        btnDownload.addEventListener('click', () => {
-            if (!previewImage.src || previewImage.src === "") return; // Nếu chưa có ảnh thì ko làm gì cả
-
-            // Tạo một thẻ link <a> ẩn để ra lệnh cho trình duyệt tải file
-            const link = document.createElement('a');
-            link.download = 'ChungNhan-ThuThachDuLieu.png'; // Tên file tải về
-            link.href = previewImage.src;
-            document.body.appendChild(link);
-            link.click(); // Giả lập hành động bấm để tải
-            document.body.removeChild(link);
         });
     </script>
 </body>
