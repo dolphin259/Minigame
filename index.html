@@ -3,8 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <title>Cyber Minigame: Data Word Mix</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>   
+    <meta name="title" content="Cyber Minigame: Data Word Mix">
+    <meta name="description" content="Giải mã các từ khóa công nghệ, hoàn thành thử thách và nhận ngay ảnh chứng nhận cực ngầu từ chương trình!">
+
+    <!-- TỐI ƯU HIỂN THỊ CHO FACEBOOK, ZALO, MESSENGER, iMESSAGE (OPEN GRAPH) -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://dolphin259.github.io/Minigame/">
+    <meta property="og:title" content="Cyber Minigame: Data Word Mix">
+    <meta property="og:description" content="Giải mã các từ khóa công nghệ, hoàn thành thử thách và nhận ngay ảnh chứng nhận cực ngầu từ chương trình!">
+    <!-- ĐƯỜNG DẪN ẢNH BÌA SẼ HIỆN LÊN KHI GỬI LINK -->
+    <meta property="og:image" content="https://dolphin259.github.io/Minigame/Background.jpg">
+
+    <!-- TỐI ƯU HIỂN THỊ CHO TELEGRAM, TWITTER/X, DISCORD -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://dolphin259.github.io/Minigame/">
+    <meta name="twitter:title" content="Cyber Minigame: Data Word Mix">
+    <meta name="twitter:description" content="Giải mã các từ khóa công nghệ, hoàn thành thử thách và nhận ngay ảnh chứng nhận cực ngầu từ chương trình!">
+    <!-- ĐƯỜNG DẪN ẢNH BÌA -->
+    <meta name="twitter:image" content="https://dolphin259.github.io/Minigame/Background.jpg">
+
+    <!-- THƯ VIỆN CHỤP ẢNH -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
     <style>
         /* CẤU TRÚC LẠI BODY ĐỂ TRỊ LỖI LỆCH TỌA ĐỘ KHI CHỤP */
         :root, html {
@@ -251,7 +272,7 @@
         <div class="modal-content">
             <h2 class="modal-title">Chúc mừng bạn đã hoàn thành</h2>
             <div class="preview-image-wrapper"><img id="preview-image" src="" alt="Ảnh minh chứng"></div>
-            <p class="instruction-text">Nhấn "Tải Về Máy". Nếu bị lỗi, hãy chụp ảnh màn hình</p>
+            <p class="instruction-text">Nhấn "Tải Về Máy". Nếu bị lỗi, hãy chụp ảnh màn hình.</p>
             <div class="modal-buttons">
                 <button class="btn-download" id="btn-download-img">Tải Về Máy</button>
                 <button class="btn-close" id="btn-close-modal">Đóng</button>
@@ -462,7 +483,7 @@
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
                     await navigator.share({
                         files: [file],
-                        title: 'Chứng nhận Thử Thách Dữ Liệu'
+                        title: 'Chứng nhận Data Word Mix'
                     });
                 } else {
                     const blobUrl = URL.createObjectURL(blob);
@@ -476,7 +497,7 @@
                 }
             } catch (error) {
                 if (error.name !== 'AbortError') {
-                    alert("Trình duyệt chặn tải trực tiếp. Hãy chụp ảnh màn hình.");
+                    alert("Trình duyệt chặn tải trực tiếp. Hãy chụp ảnh màn hình");
                 }
             }
         });
